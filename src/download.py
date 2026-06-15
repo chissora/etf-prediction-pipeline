@@ -27,7 +27,8 @@ def download_ticker(ticker: str):
         ticker,
         start=START_DATE,
         progress=False,
-        auto_adjust=True
+        auto_adjust=True,
+        multi_level_index=False
     )
 
     if data.empty:
