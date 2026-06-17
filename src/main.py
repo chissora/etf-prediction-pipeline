@@ -1,7 +1,7 @@
 from src.download import main as download_data
 from src.features import main as generate_features
 from src.train import main as train_model
-from reports.report import main as generate_report
+from src.report import main as generate_report
 
 
 def main():
