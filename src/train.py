@@ -1,5 +1,7 @@
 import json
 import joblib
+import mlflow
+import mlflow.sklearn
 import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
@@ -15,6 +17,9 @@ from src.config import PROCESSED_DATA_DIR, ARTIFACTS_DIR
 from src.logger import get_logger
 
 logger = get_logger(__name__)
+
+MLFLOW_EXPERIMENT_NAME = "etf_prediction"
+MODEL_MAX_ITER = 1000
 
 FEATURE_COLUMNS = [
     "Close",
@@ -59,7 +64,7 @@ def train_model(X_train, y_train):
     logger.info("Training Logistic Regression")
 
     model = LogisticRegression(
-        max_iter=1000
+        max_iter=MODEL_MAX_ITER
     )
 
     model.fit(X_train, y_train)
@@ -120,7 +125,23 @@ def save_metrics(metrics):
     logger.info(f"Metrics saved to {output_path}")
 
 
+def log_mlflow_run(model, metrics):
+    logger.info("Logging MLflow experiment run")
+
+    mlflow.log_param("model", "LogisticRegression")
+    mlflow.log_param("max_iter", model.max_iter)
+
+    mlflow.log_metrics(metrics)
+
+    mlflow.sklearn.log_model(
+        sk_model=model,
+        name="model",
+    )
+
+
 def main():
+    mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+
     df = load_features()
 
     X, y = prepare_data(df)
@@ -130,20 +151,23 @@ def main():
         y,
     )
 
-    model = train_model(
-        X_train,
-        y_train,
-    )
+    with mlflow.start_run():
+        model = train_model(
+            X_train,
+            y_train,
+        )
 
-    metrics = evaluate_model(
-        model,
-        X_test,
-        y_test,
-    )
+        metrics = evaluate_model(
+            model,
+            X_test,
+            y_test,
+        )
 
-    save_model(model)
+        log_mlflow_run(model, metrics)
 
-    save_metrics(metrics)
+        save_model(model)
+
+        save_metrics(metrics)
 
     logger.info("Training and evaluation completed")
 

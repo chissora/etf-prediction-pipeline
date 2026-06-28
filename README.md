@@ -38,6 +38,21 @@ Run container:
 docker run etf-pipeline
 ```
 
+## MLflow Tracking
+
+Training runs are logged to an MLflow experiment named `etf_prediction`.
+The pipeline logs the model parameters, evaluation metrics, and trained
+scikit-learn model while still writing `artifacts/model.pkl` and
+`artifacts/metrics.json`.
+
+Start the MLflow UI with:
+
+```bash
+mlflow ui
+```
+
+Then open [http://127.0.0.1:5000](http://127.0.0.1:5000/).
+
 ## Project Structure
 
 ```text

@@ -5,6 +5,7 @@
 data/
 artifacts/
 reports/
+mlruns/
 
 __pycache__/
 *.pyc
